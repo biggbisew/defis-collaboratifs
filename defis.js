@@ -21,6 +21,8 @@ function sendXHR(args, callback) {
   xhr.onreadystatechange = function() {
     if (xhr.status === 200 && xhr.readyState === 4) {
       callback(xhr.response); // responseText ?
+    } else {
+        alert("Euh... : Déso, on s'est pris un pet au casque.");
     }
   };
   xhr.send(args);
@@ -196,19 +198,29 @@ function new_session(){
             use_session();
             document.getElementById("id_new_defi").style.display = "";
         })
+    } else {
+        alert("NON : le nom de la session [" + session_name + "] ne va pas.");
     }
 }
 
 
 function new_defi(){
     var defi_name = document.getElementById("id_input_defi").value; 
-    var defi_goal = document.getElementById("id_input_goal").value; 
-    if ((defi_name != "") && (defi_goal != "")) {
-        sendXHR("cmd=new_defi&id=" + session_id + '&name=' + defi_name + "&incr=" + defi_goal, function(response) {
-            if (response!=""){
-                document.getElementById("id_input_defi").value=""; 
-                document.getElementById("id_input_goal").value=""; 
-            }
-        })
+    var defi_goal = document.getElementById("id_input_goal").value;
+    if ( (defi_name != "") ) { // TODO : rajouter des checks
+        if ( (defi_goal != "") && (typeof(defi_goal) == 'number') ) {
+            sendXHR("cmd=new_defi&id=" + session_id + '&name=' + defi_name + "&incr=" + defi_goal, function(response) {
+                if (response!=""){
+                    document.getElementById("id_input_defi").value=""; 
+                    document.getElementById("id_input_goal").value=""; 
+                } else {
+                    alert("Euh... : Déso, on n'a pas pu créer ce défi.");
+                }
+            })
+        } else {
+            alert("NON : la valeur de goal [" + defi_goal + "] ne va pas.");
+        }
+    } else {
+        alert("NON : le nom du défi [" + defi_name + "] ne va pas.");
     }
 }
