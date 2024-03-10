@@ -3,6 +3,37 @@ var list_defis_int_id = 0;
 var session_id = 0 ;
 var session_name = "" ;
 
+
+
+// ###############################
+// containsSpecialChars(str)
+// - renvoie vrai si str contient un caractere non autorise
+// ###############################
+function containsSpecialChars(str) {
+    // const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+    const specialChars = /[`@#$^&*+=\[\]{};'"\\|<>\/~]/; 
+    return specialChars.test(str);
+}
+
+
+
+// ###############################
+// pad(num,size)
+// - renvoie num avec des leading zeros pour obtenir au moins size caracteres
+// ###############################
+function pad(num, size) {
+    var s = num+"";
+    while (s.length < size) s = "0" + s;
+    return s;
+}
+
+
+
+// ###############################
+// reset_values()
+// - (ré)initialise les valeurs globales
+// - (ré)initialise le timer "refresh_session"
+// ###############################
 function reset_values() {
     session_id=0;
     session_name="";
@@ -14,6 +45,11 @@ function reset_values() {
 
 
 
+// ###############################
+// sendXHR(args, callback)
+// - effectue une requête au serveur avec args en paramètres
+// - exécute callback au retour de la requête
+// ###############################
 function sendXHR(args, callback) {
   let xhr = new XMLHttpRequest() || new window.ActiveXObject("Microsoft.XMLHTTP");
   xhr.open("POST", "defis.php", true);
@@ -21,13 +57,17 @@ function sendXHR(args, callback) {
   xhr.onreadystatechange = function() {
     if (xhr.status === 200 && xhr.readyState === 4) {
       callback(xhr.response); // responseText ?
-    }
+    } 
   };
   xhr.send(args);
 }
 
 
 
+// ###############################
+// refresh_sessions()
+// - récupère la liste des sessions existantes et les place dans la liste déroulante
+// ###############################
 function refresh_sessions(){
     sendXHR("cmd=get_sessions", function(response) {
         var new_IDs=Array();
@@ -69,18 +109,80 @@ function refresh_sessions(){
 }
 
 
-function update_defi(idx,incr) {
-    sendXHR("cmd=update_defi&id=" + session_id + '&idx=' + idx + "&incr=" + incr, function(response) {
-    //    alert(response);
+
+// ###############################
+// new_session()
+// - check le nom de session proposé
+// - envoie une requête pour créer la session (et récupère son ID)
+// - va sur cette nouvelle session
+// - active la possibilité de rajouter des défis
+// ###############################
+function new_session(){
+    session_name = document.getElementById("id_input_sess").value; 
+
+    // Petite série d'anti-cons
+    if (session_name == "") { 
+        alert("NON : le nom de la session [" + session_name + "] ne peut pas être vide.");
+        return ;
+    }
+    if (session_name.length <8 ) { 
+        alert("NON : le nom de la session [" + session_name + "] est trop court (8 caractères minimum).");
+        return ;
+    }
+    if (session_name.length >64) { 
+        alert("NON : le nom du défi [" + session_name + "] est trop long (64 caractères maximum).");
+        return ;
+    }
+    if (containsSpecialChars(session_name)) { 
+        alert("NON : le nom du défi [" + session_name + "] contient un (ou des) caractères non autorisés.");
+        return ;
+    }
+
+    // et on bosse enfin
+    sendXHR("cmd=new_session&name=" + session_name, function(reponse) {
+        session_id = reponse ;
+        use_session();
+        document.getElementById("id_new_defi").style.display = "";
     })
 }
 
-function pad(num, size) {
-    var s = num+"";
-    while (s.length < size) s = "0" + s;
-    return s;
+
+
+// ###############################
+// use_session()
+// - stoppe le polling de sessions
+// - cache la page d'accueil
+// - affiche la table des défis
+// - récupère l'ID se session 
+// - active le polling de défis
+// ###############################
+function use_session(){
+    clearInterval(list_sessions_int_id);
+    document.getElementById("home").style.display = "none";
+    document.getElementById("user").style.display = "";
+    
+    if (session_id==0) {  // Selection par <select>
+        var id_session_id = document.getElementById("id_sel_sessions");
+        session_id = id_session_id.value ;    
+        session_name = id_session_id.options[id_session_id.selectedIndex].text ;
+    } else {  // New
+        session_name = document.getElementById("id_input_sess").value; 
+    }
+
+    document.getElementById("id_h2_sess").innerHTML=session_name;
+    list_defis_int_id = setInterval("refresh_defis()", 2500);
+    refresh_defis() ;
 }
 
+
+
+// ###############################
+// refresh_defis()
+// - récupère les noms, valeurs et goals de chaque défi
+// - s'il n'est pas présent dans la table : on le rajoute
+// - s'il est présent et que la valeur a changé : on met à jour
+// - si la table a été modifiée, on met à jour les totaux
+// ###############################
 function refresh_defis(){
     sendXHR("cmd=get_defis&id=" + session_id, function(response) {
         data = JSON.parse(response);
@@ -139,7 +241,7 @@ function refresh_defis(){
                 last_td.appendChild(btn20);
 
                 var tmp_td = cur_tr.getElementsByTagName("td");
-                tmp_td[1].setAttribute('class', classe + ((nb >= goal)?" td_OK":"") ) ;               
+                tmp_td[1].setAttribute('class', classe + " gauche" + ((nb >= goal)?" td_OK":"") ) ;               
                 for (var i_td=2; i_td<5; i_td++) {
                     tmp_td[i_td].setAttribute('class', classe) ;
                 }
@@ -167,48 +269,73 @@ function refresh_defis(){
 }
 
 
-
-
-function use_session(){
-    clearInterval(list_sessions_int_id);
-    document.getElementById("home").style.display = "none";
-    document.getElementById("user").style.display = "";
-    
-    if (session_id==0) {  // Selection par <select>
-        var id_session_id = document.getElementById("id_sel_sessions");
-        session_id = id_session_id.value ;    
-        session_name = id_session_id.options[id_session_id.selectedIndex].text ;
-    } else {  // New
-        session_name = document.getElementById("id_input_sess").value; 
-    }
-
-    document.getElementById("id_h2_sess").innerHTML=session_name;
-    list_defis_int_id = setInterval("refresh_defis()", 2500);
-    refresh_defis() ;
+// ###############################
+// update_defi(idx,incr)
+// - est appelé quand on clique sur un des boutons +5/+10/+20
+// - envoie une requête d'update pour le défi concerné
+// ###############################
+function update_defi(idx,incr) {
+    sendXHR("cmd=update_defi&id=" + session_id + '&idx=' + idx + "&incr=" + incr, function(response) {
+    //    alert(response);
+    })
 }
 
 
-function new_session(){
-    session_name = document.getElementById("id_input_sess").value; 
-    if (session_name != "") {
-        sendXHR("cmd=new_session&name=" + session_name, function(reponse) {
-            session_id = reponse ;
-            use_session();
-            document.getElementById("id_new_defi").style.display = "";
-        })
-    }
-}
 
-
+// ###############################
+// new_defi()
+// - vérifie le nom et le goal proposé
+// - envoie une requète de création du défi
+// ###############################
 function new_defi(){
     var defi_name = document.getElementById("id_input_defi").value; 
-    var defi_goal = document.getElementById("id_input_goal").value; 
-    if ((defi_name != "") && (defi_goal != "")) {
-        sendXHR("cmd=new_defi&id=" + session_id + '&name=' + defi_name + "&incr=" + defi_goal, function(response) {
-            if (response!=""){
-                document.getElementById("id_input_defi").value=""; 
-                document.getElementById("id_input_goal").value=""; 
-            }
-        })
+    var defi_goal = document.getElementById("id_input_goal").value;
+
+    // Petite série d'anti-cons
+    if (defi_name == "") { 
+        alert("NON : le nom du défi [" + defi_name + "] ne peut pas être vide.");
+        return ;
     }
+    if (defi_name.length <4 ) { 
+        alert("NON : le nom du défi [" + defi_name + "] est trop court (4 caractères minimum).");
+        return ;
+    }
+    if (defi_name.length >32) { 
+        alert("NON : le nom du défi [" + defi_name + "] est trop long (32 caracteres maximum).");
+        return ;
+    }
+    if (containsSpecialChars(defi_name)) { 
+        alert("NON : le nom du défi [" + defi_name + "] contient un (ou des) caractères non autorisés.");
+        return ;
+    }    
+    if ( defi_goal == "") {
+        alert("NON : la valeur de goal [" + defi_goal + "] est vide.");
+        return ;
+    }
+    if (isNaN(Number(defi_goal))) {
+        alert("NON : la valeur de goal [" + defi_goal + "] doit être un nombre.");    
+        return ;
+    }
+    if(Number(defi_goal) <= 0) {
+        alert("NON : la valeur de goal [" + defi_goal + "] doit être strictement positif.");
+        return ;
+    }
+    if(Number(defi_goal) >=10000) {
+        alert("NON : la valeur de goal [" + defi_goal + "] doit être inférieur à 10 000.");
+        return ;
+    }
+    if (Number(defi_goal) % 1 != 0) {
+        alert("NON : la valeur de goal [" + defi_goal + "] doit être un entier.");    
+        return ;
+    }
+
+    // et on bosse enfin
+    sendXHR("cmd=new_defi&id=" + session_id + '&name=' + defi_name + "&incr=" + defi_goal, function(response) {
+        if (response!=""){
+            document.getElementById("id_input_defi").value=""; 
+            document.getElementById("id_input_goal").value=""; 
+        } else {
+            alert("Euh... : Déso, on n'a pas pu créer ce défi.");
+        }                   
+    })
 }
