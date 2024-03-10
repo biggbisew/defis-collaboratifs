@@ -35,6 +35,10 @@ table {
     text-align: center;
 }
 
+.gauche {
+    text-align: left;
+}
+
 td { 
     padding-left: 5px; 
     padding-right:5px; 
