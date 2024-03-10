@@ -1,0 +1,89 @@
+html , input, select {
+    font-family: "helvetica neue", helvetica, arial, sans-serif;
+    font-size: 15px;  
+}
+
+button,select,h2
+{
+    background: #9568f2;
+    background: -webkit-gradient(linear, 0% 50%, 0% 51%, from(#9568f2), to(#8755f1));
+    border: 0;
+    border-radius: 6px;
+    color: #fcfcfc;
+    font-weight: bold;
+    line-height: 1;
+    padding: 10px 5px 10px 5px;
+    margin: 1px 1px 1px 1px;
+    text-align: center;
+    text-shadow: 0px -1px 1px rgba(104, 45, 64, .7);
+}
+
+button:hover{
+    cursor:pointer;
+}
+
+table {
+    background-color: gainsboro;
+    border-collapse: collapse;
+    border-radius: 6px;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+.center {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+td { 
+    padding-left: 5px; 
+    padding-right:5px; 
+} 
+
+th { 
+    padding-top: 10px;  
+} 
+
+td:nth-child(2) { 
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+}
+
+td:nth-child(5){
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+.totaux td {
+    font-weight: bold;
+    padding-top: 5px;  
+}
+
+.gradient_100 {background: #57bb8a;}
+.gradient_95  {background: #63b682;}
+.gradient_90  {background: #73b87e;}
+.gradient_85  {background: #84bb7b;}
+.gradient_80  {background: #94bd77;}
+.gradient_75  {background: #a4c073;}
+.gradient_70  {background: #b0be6e;}
+.gradient_65  {background: #c4c56d;}
+.gradient_60  {background: #d4c86a;}
+.gradient_55  {background: #e2c965;}
+.gradient_50  {background: #f5ce62;}
+.gradient_45  {background: #f3c563;}
+.gradient_40  {background: #e9b861;}
+.gradient_35  {background: #e6ad61;}
+.gradient_30  {background: #ecac67;}
+.gradient_25  {background: #e9a268;}
+.gradient_20  {background: #e79a69;}
+.gradient_15  {background: #e5926b;}
+.gradient_10  {background: #e2886c;}
+.gradient_05  {background: #e0816d;}
+.gradient_00  {background: #dd776e;}
+
+.td_OK {
+    background-image:url('img/check2.png');
+    background-size: auto 100% ;
+    background-position-x: right;
+    background-repeat: no-repeat;    
+}

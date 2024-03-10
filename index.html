@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Défis collaboratifs !</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link rel="shortcut icon" type="image/ico" href="img/favicon.png" />
+  <link rel="stylesheet" type="text/css" href="defis.css" />
+  <script type="text/javascript" src="defis.js"></script>
+</head>
+<body onload="reset_values();">
+
+  <div class='center' id='home'>
+    <h2> <img src="img/favicon.png"> Défis collaboratifs ! <img src="img/favicon_2.png"></h2>
+    <br>
+    <select id='id_sel_sessions' onchange='use_session();'><option >Select session</option></select>
+    <br><br><b>&nbsp;OU&nbsp;</b><br>
+    <input id='id_input_sess' type='text' /> <button onclick='new_session();'>Créer une session</button>
+  </div>
+
+  <div class='center' id='user' style="display:none;">
+    <h2 id="id_h2_sess"></h2>
+    <br>
+    <table class='center'>
+      <thead>
+        <tr><th>&nbsp;</th><th>Défi</th><th>Nb</th><th></th><th>Goal</th><th></th></tr>
+      </thead>
+      <tbody id="id_tab_defis">
+      </tbody>
+      <tfoot >
+        <tr class='totaux' ><td>&nbsp;</td><td></td><td id='tot_nb'></td><td>/</td><td id='tot_goal'></td><td></td></tr>
+        <tr id="id_new_defi" style="display:none;"><td></td><td><input id='id_input_defi' type='text' /></td><td>0</td><td>/</td><td><input id='id_input_goal' type='text' size='4' /></td><td><button onclick='new_defi();'>ajouter défi</button></td></tr>
+      </tfoot>       
+    </table>
+  </div>
+
+</body>
+</html>
